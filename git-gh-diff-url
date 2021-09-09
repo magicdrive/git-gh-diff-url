@@ -1,12 +1,65 @@
 #! /bin/bash
 
 
+export GIT_GH_DIFF_URL_BROWSER_DARWIN="${GIT_GH_DIFF_URL_BROWSER_DARWIN:-"open -a '/Applications/Google Chrome.app'"}"
+export GIT_GH_DIFF_URL_BROWSER_LINUX="${GIT_GH_DIFF_URL_BROWSER_LINUX:-"google-chrome"}"
+export GIT_GH_DIFF_URL_BROWSER=""
 
+git::gh:d:u::help() {
+    cat << HELP
+USAGE:
+    * git-gh-diff-url --left [LEFT] --right [RIGHT]
+    *  [-l|--left]      # Show This help.
+    *  [-r|--right]     # Initialize current dir as git-repository. then start REPL
+    *  [-v|--verbose]   # Start REPL with repository infomation message.
+    *  [-s|--simple]    # Config Start with no help message.
+    *  [-v|--verbose]   # Exec git status command, when pre loop.
+    *  [-b|--browser]   # Specify Completion file.
+HELP
+}
 
+git::gh:d:u::browser() {
+    local url=$1
+    $($(git::gh:d:u::browser_command) "${url}")
+}
 
-git::gh:d:u::head() {
+git::gh:d:u::browser_command() {
+    local browser_command
+
+    case "$(uname -s)" in
+        "Darwin")
+            browser_command="${GIT_GH_DIFF_URL_BROWSER_DARWIN}"
+            ;;
+        "Linux")
+            browser_command="${GIT_GH_DIFF_URL_BROWSER_LINUX}"
+            ;;
+        *)
+            echo "Unsupported platform" >&2
+            exit 1
+            ;;
+    esac
+
+    if [[ -n ${GIT_GH_DIFF_URL_BROWSER} ]];then
+        browser_command="${GIT_GH_DIFF_URL_BROWSER}"
+    fi
+
+    echo "${browser_command}"
+}
+
+git::gh:d:u::branch_name() {
+    local repo_name=$1
+    local right=$1
+    echo "($(repo_name)) $(right)"
+}
+
+git::gh:d:u::head_log() {
     local branch="$1"
-    git log master --pretty=%H -1
+    git log $(branch) --decorate -1
+}
+
+git::gh:d:u::head_hash() {
+    local branch="$1"
+    git log $(branch) --pretty=%H -1
 }
 
 git::gh:d:u::default_branch() {
@@ -18,4 +71,75 @@ git::gh:d:u::gh_repository_url() {
     local gh_repo_name=$(git remote -v | grep fetch | sed 's/origin   git@github.com:\(.*\).git (fetch)/\1/')
     echo "https://github.com/$(gh_repo_name)"
 }
+
+git::gh:d:u::diff_url() {
+    local repo_url=$1
+    local left=$2
+    local right=$3
+    echo https://github.com/$(repo_url)/compare/$(left)...$(right)
+}
+
+optspec=":-:r:l:vshb"
+while getopts "$optspec" optchar; do
+    case "${optchar}" in
+        -)
+            case "${OPTARG}" in
+                help)
+                    git::repl::mode::verbose
+                    ;;
+                left)
+                    git::repl::help; exit 1
+                    ;;
+                right)
+                    git::repl::do_git_init
+                    ;;
+                refs)
+                    git::repl::do_git_init
+                    ;;
+                verbose)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    git::repl::config::completion "${val}"
+                    ;;
+                simple)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    git::repl::config::completion "${val}"
+                    ;;
+                browser)
+                    git::repl::mode::verbose
+                    ;;
+                *)
+                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+                        echo "Unknown option --${OPTARG}" >&2
+                    fi
+                    ;;
+            esac;;
+        h)
+            git::repl::help; exit 1
+            ;;
+        l)
+            git::repl::do_git_init
+            ;;
+        r)
+            git::repl::mode::no_help_message
+            ;;
+        o)
+            git::repl::mode::no_help_message
+            ;;
+        v)
+            git::repl::mode::verbose
+            ;;
+        s)
+            git::repl::mode::with_status
+            ;;
+        b)
+            git::repl::config::rlwrap_opt "${OPTARG}"
+            ;;
+        *)
+            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+                echo "Non-option argument: '-${OPTARG}'" >&2
+            fi
+            exit 1
+            ;;
+    esac
+done
 
