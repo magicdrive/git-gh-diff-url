@@ -1,20 +1,21 @@
 #! /bin/bash
 
+set -e
 
 export GIT_GH_DIFF_URL_BROWSER_DARWIN="${GIT_GH_DIFF_URL_BROWSER_DARWIN:-"open -a '/Applications/Google Chrome.app'"}"
 export GIT_GH_DIFF_URL_BROWSER_LINUX="${GIT_GH_DIFF_URL_BROWSER_LINUX:-"google-chrome"}"
-export GIT_GH_DIFF_URL_BROWSER=""
+export GIT_GH_DIFF_URL_BROWSER="${GIT_GH_DIFF_URL_BROWSER:-""}"
 
 git::gh:d:u::help() {
     cat << HELP
 USAGE:
     * git-gh-diff-url --left [LEFT] --right [RIGHT]
-    *  [-l|--left]      # Show This help.
-    *  [-r|--right]     # Initialize current dir as git-repository. then start REPL
-    *  [-v|--verbose]   # Start REPL with repository infomation message.
-    *  [-s|--simple]    # Config Start with no help message.
-    *  [-v|--verbose]   # Exec git status command, when pre loop.
-    *  [-b|--browser]   # Specify Completion file.
+    *  [-l|--left]      # Left side git ref used for compare. (default: remote oring default branch)
+    *  [-r|--right]     # Right side git ref used for compare. (default: current branch)
+    *  [-o|--refs-mode] # Specify url ref hash mode. r or l or lr or rl(default: l)
+    *  [-v|--verbose]   # verbose mode
+    *  [-s|--simple]    # simple output mode
+    *  [-b|--browser]   # open create url to GIT_GH_DIFF_URL_BROWSER cmd.
 HELP
 }
 
@@ -47,37 +48,106 @@ git::gh:d:u::browser_command() {
 }
 
 git::gh:d:u::branch_name() {
-    local repo_name=$1
-    local right=$1
-    echo "($(repo_name)) $(right)"
+    echo "($(basename $(git rev-parse --show-toplevel))) $(git::gh:d:u::current_branch)"
 }
 
 git::gh:d:u::head_log() {
     local branch="$1"
-    git log $(branch) --decorate -1
+    git log ${branch} --decorate -1
 }
 
 git::gh:d:u::head_hash() {
     local branch="$1"
-    git log $(branch) --pretty=%H -1
+    git log ${branch} --pretty=%H -1
 }
 
 git::gh:d:u::default_branch() {
-    git remote set-head origin --auto
+    #git remote set-head origin --auto
     git symbolic-ref refs/remotes/origin/HEAD | awk -F'[/]' '{print $NF}'
 }
 
-git::gh:d:u::gh_repository_url() {
-    local gh_repo_name=$(git remote -v | grep fetch | sed 's/origin   git@github.com:\(.*\).git (fetch)/\1/')
-    echo "https://github.com/$(gh_repo_name)"
+git::gh:d:u::current_branch() {
+    echo "$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
+}
+
+git::gh:d:u::gh_repository_id() {
+    echo $(git remote -v | grep fetch | sed 's/origin[[:space:]]*git@github.com:\(.*\).git[[:space:]]*(fetch)/\1/')
+
 }
 
 git::gh:d:u::diff_url() {
     local repo_url=$1
     local left=$2
     local right=$3
-    echo https://github.com/$(repo_url)/compare/$(left)...$(right)
+    echo https://github.com/${repo_url}/compare/${left}...${right}
 }
+
+git::gh:d:u::left() {
+    if [[ -n ${__CONFIG_LEFT} ]];then
+        echo "${__CONFIG_LEFT}"
+    else
+        git::gh:d:u::default_branch
+    fi
+}
+
+git::gh:d:u::right() {
+    if [[ -n ${__CONFIG_RIGHT} ]];then
+        echo "${__CONFIG_RIGHT}"
+    else
+        git::gh:d:u::current_branch
+    fi
+}
+
+git::gh:d:u::refs_mode() {
+    __CONFIG_REFS_MODE=$1
+}
+
+git::gh:d:u::main() {
+    _repo_url="$(git::gh:d:u::gh_repository_id)"
+    _left="$(git::gh:d:u::left)"
+    _right="$(git::gh:d:u::right)"
+    case "${__CONFIG_REFS_MODE:-"l"}" in
+        l)
+            _left=$(git::gh:d:u::head_hash "$left")
+            ;;
+        r)
+            _right=$(git::gh:d:u::head_hash "$right")
+            ;;
+        lr|rl)
+            _right=$(git::gh:d:u::head_hash "$right")
+            _left=$(git::gh:d:u::head_hash "$left")
+            ;;
+        *)
+    esac
+
+    echo "$(git::gh:d:u::branch_name)"
+    local diff_url=$(git::gh:d:u::diff_url "${_repo_url}" "${_left}" "${_right}")
+    echo "${diff_url}"
+    if [[ ${__CONFIG_VERBOSE} = 1 ]] && [[ ${__CONFIG_SIMPLE} != 1 ]];then
+        echo
+        echo "left side:"
+        git::gh:d:u::head_log $(git::gh:d:u::left)
+        echo
+        echo "left side:"
+        git::gh:d:u::head_log $(git::gh:d:u::right)
+        echo
+    else
+        echo
+        echo "left side:"
+        echo "$(git::gh:d:u::left):  $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
+        echo
+        echo "right side:"
+        echo "$(git::gh:d:u::right): $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
+        echo
+    fi
+
+    if [[ ${__CONFIG_BROWSER} = 1 ]];then
+        git::gh:d:u::browser_command "${diff_url}"
+    fi
+}
+
+
+
 
 optspec=":-:r:l:vshb"
 while getopts "$optspec" optchar; do
@@ -85,27 +155,28 @@ while getopts "$optspec" optchar; do
         -)
             case "${OPTARG}" in
                 help)
-                    git::repl::mode::verbose
+                    git::gh:d:u:help; exit 1
                     ;;
                 left)
-                    git::repl::help; exit 1
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_LEFT="${val}"
                     ;;
                 right)
-                    git::repl::do_git_init
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_RIGHT="${val}"
                     ;;
-                refs)
-                    git::repl::do_git_init
+                refs-mode)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_REFS="${val}"
                     ;;
                 verbose)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    git::repl::config::completion "${val}"
+                    __CONFIG_VERBOSE=1
                     ;;
                 simple)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    git::repl::config::completion "${val}"
+                    __CONFIG_SIMPLE=1
                     ;;
                 browser)
-                    git::repl::mode::verbose
+                    __CONFIG_BROWSER=1
                     ;;
                 *)
                     if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
@@ -117,22 +188,22 @@ while getopts "$optspec" optchar; do
             git::repl::help; exit 1
             ;;
         l)
-            git::repl::do_git_init
+            __CONFIG_LEFT="${OPTARG}"
             ;;
         r)
-            git::repl::mode::no_help_message
+            __CONFIG_RIGHT="${OPTARG}"
             ;;
         o)
-            git::repl::mode::no_help_message
+            __CONFIG_REFS="${OPTARG}"
             ;;
         v)
-            git::repl::mode::verbose
+            __CONFIG_VERBOSE=1
             ;;
         s)
-            git::repl::mode::with_status
+            __CONFIG_SIMPLE=1
             ;;
         b)
-            git::repl::config::rlwrap_opt "${OPTARG}"
+            __CONFIG_BROWSER=1
             ;;
         *)
             if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
@@ -142,4 +213,6 @@ while getopts "$optspec" optchar; do
             ;;
     esac
 done
+
+git::gh:d:u::main && exit 0
 
