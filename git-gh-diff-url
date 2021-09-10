@@ -128,7 +128,7 @@ git::gh:d:u::main() {
         echo "left side:"
         git::gh:d:u::head_log $(git::gh:d:u::left)
         echo
-        echo "left side:"
+        echo "right side:"
         git::gh:d:u::head_log $(git::gh:d:u::right)
         echo
     else
