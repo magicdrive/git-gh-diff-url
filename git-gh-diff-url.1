@@ -4,6 +4,9 @@
 .PP
 git\-gh\-diff\-url \- generate github refs diff url (github.com/user/repo/compare/...).
 
+.PP
+
+
 .SH USAGE
 .PP
 .RS
@@ -16,6 +19,7 @@ git\-gh\-diff\-url \- generate github refs diff url (github.com/user/repo/compar
  *  [\-v|\-\-verbose]                     # Verbose mode.
  *  [\-s|\-\-simple]                      # Simple output mode.
  *  [\-b|\-\-browser]                     # open create url to GIT\_GH\_DIFF\_URL\_BROWSER cmd.
+ *  [\-p|\-\-browser\-option] [OPTION]     # Specify `git web\-\-browse` option.
  *  [\-t|\-\-output] [text|html|markdown] # Specify output text type. (default: markdown)
 
 .fi
@@ -26,9 +30,7 @@ git\-gh\-diff\-url \- generate github refs diff url (github.com/user/repo/compar
 .RS
 
 .nf
-GIT\_GH\_DIFF\_URL\_BROWSER\_DARWIN           # Browser command to be used if you are on MacOSX. (default: use chrome)
-GIT\_GH\_DIFF\_URL\_BROWSER\_LINUX            # Browser command to be used if you are on Linux. (default: use chrome)
-GIT\_GH\_DIFF\_URL\_BROWSER                  # Highest priority browser command.
+GIT\_GH\_DIFF\_URL\_DEFAULT\_BROWSER\_OPTION   # Default use `\-\-browser\-option` option. (default: "")
 GIT\_GH\_DIFF\_URL\_DEFAULT\_REFS\_MODE        # Default use `\-\-refs\-mode` option. (default: "l")
 GIT\_GH\_DIFF\_URL\_DEFAULT\_OUTPUT\_TEXT\_TYPE # Default use `\-\-output` option. (default: "markdown")
 

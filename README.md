@@ -20,16 +20,15 @@ USAGE
  *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
  *  [-v|--verbose]                     # Verbose mode.
  *  [-s|--simple]                      # Simple output mode.
- *  [-b|--browser]                     # open create url to GIT_GH_DIFF_URL_BROWSER cmd.
+ *  [-b|--browser]                     # open create url to `git web--browse` cmd.
+ *  [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
  *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 ```
 
 ENVIRONMENTS
 ----
 ```
-GIT_GH_DIFF_URL_BROWSER_DARWIN           # Browser command to be used if you are on MacOSX. (default: use chrome)
-GIT_GH_DIFF_URL_BROWSER_LINUX            # Browser command to be used if you are on Linux. (default: use chrome)
-GIT_GH_DIFF_URL_BROWSER                  # Highest priority browser command.
+GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION   # Default use `--browser-option` option. (default: "")
 GIT_GH_DIFF_URL_DEFAULT_REFS_MODE        # Default use `--refs-mode` option. (default: "l")
 GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE # Default use `--output` option. (default: "markdown")
 ```

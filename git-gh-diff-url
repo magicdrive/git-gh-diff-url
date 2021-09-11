@@ -10,13 +10,12 @@
 #     *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
 #     *  [-v|--verbose]                     # Verbose mode on.
 #     *  [-s|--simple]                      # Simple mode on.
-#     *  [-b|--browser]                     # open create url to GIT_GH_DIFF_URL_BROWSER cmd.
+#     *  [-b|--browser]                     # open create url to `git web--browse` cmd.
+#     *  [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
 #     *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 #
 # ENVIRONMENTS:
-#     GIT_GH_DIFF_URL_BROWSER_DARWIN           # Browser command to be used if you are on MacOSX. (default: use chrome)
-#     GIT_GH_DIFF_URL_BROWSER_LINUX            # Browser command to be used if you are on Linux. (default: use chrome)
-#     GIT_GH_DIFF_URL_BROWSER                  # Highest priority browser command.
+#     GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION   # Default use `--browser-option` option. (default: "")
 #     GIT_GH_DIFF_URL_DEFAULT_REFS_MODE        # Default use `--refs-mode` option. (default: "l")
 #     GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE # Default use `--output` option. (default: "markdown")
 #
@@ -44,10 +43,8 @@
 
 set -e
 
-export GIT_GH_DIFF_URL_BROWSER_DARWIN="${GIT_GH_DIFF_URL_BROWSER_DARWIN:-"open -a '/Applications/Google Chrome.app'"}"
-export GIT_GH_DIFF_URL_BROWSER_LINUX="${GIT_GH_DIFF_URL_BROWSER_LINUX:-"google-chrome"}"
-export GIT_GH_DIFF_URL_BROWSER="${GIT_GH_DIFF_URL_BROWSER:-""}"
-export GIT_GH_DEFAULT_REFS_MODE="${GIT_GH_DEFAULT_REFS_MODE:-"l"}"
+export GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION="${GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION:-""}"
+export GIT_GH_DIFF_URL_DEFAULT_REFS_MODE="${GIT_GH_DIFF_URL_DEFAULT_REFS_MODE:-"l"}"
 export GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE=${GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE:-"markdown"}
 
 git::gh:d:u::help() {
@@ -59,37 +56,15 @@ USAGE:
     *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
     *  [-v|--verbose]                     # verbose mode
     *  [-s|--simple]                      # simple output mode
-    *  [-b|--browser]                     # open create url to GIT_GH_DIFF_URL_BROWSER cmd.
+    *  [-b|--browser]                     # open create url to \`git web--browse\` cmd.
+    *  [-p|--browser-option] [OPTION]     # Specify \`git web--browse\` option.
     *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 HELP
 }
 
 git::gh:d:u::browser() {
     local url=$1
-    $($(git::gh:d:u::browser_command) "${url}")
-}
-
-git::gh:d:u::browser_command() {
-    local browser_command
-
-    case "$(uname -s)" in
-        "Darwin")
-            browser_command="${GIT_GH_DIFF_URL_BROWSER_DARWIN}"
-            ;;
-        "Linux")
-            browser_command="${GIT_GH_DIFF_URL_BROWSER_LINUX}"
-            ;;
-        *)
-            echo "Unsupported platform" >&2
-            exit 1
-            ;;
-    esac
-
-    if [[ -n ${GIT_GH_DIFF_URL_BROWSER} ]];then
-        browser_command="${GIT_GH_DIFF_URL_BROWSER}"
-    fi
-
-    echo "${browser_command}"
+    git web--browse "${__CONFIG_BROWSER_OPTION:-${GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION}}" "${url}"
 }
 
 git::gh:d:u::branch_name() {
@@ -185,7 +160,7 @@ git::gh:d:u::main() {
     _repo_url="$(git::gh:d:u::gh_repository_id)"
     _left="$(git::gh:d:u::left)"
     _right="$(git::gh:d:u::right)"
-    case "${__CONFIG_REFS_MODE:-"l"}" in
+    case "${__CONFIG_REFS_MODE:-"${GIT_GH_DIFF_URL_DEFAULT_REFS_MODE}"}" in
         l)
             _left=$(git::gh:d:u::head_hash "$left")
             ;;
@@ -226,7 +201,7 @@ git::gh:d:u::main() {
 
 
 
-optspec=":-:r:l:o:t:vshb"
+optspec=":-:r:l:o:t:p:vshb"
 while getopts "$optspec" optchar; do
     case "${optchar}" in
         -)
@@ -259,6 +234,10 @@ while getopts "$optspec" optchar; do
                     ;;
                 browser)
                     __CONFIG_BROWSER=1
+                    ;;
+                browser-optoin)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_BROWSER_OPTION="${val}"
                     ;;
                 output)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
@@ -301,6 +280,9 @@ while getopts "$optspec" optchar; do
             ;;
         b)
             __CONFIG_BROWSER=1
+            ;;
+        t)
+            __CONFIG_BROWSER_OPTION="${OPTARG}"
             ;;
         t)
             if [[ ${OPTARG} =~ ^(:?text|html|markdown)$ ]]; then
