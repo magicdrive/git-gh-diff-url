@@ -215,7 +215,7 @@ git::gh:d:u::main() {
         echo "$(git::gh:d:u::left): $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
         echo
         echo "right side:"
-        echo "$(git::gh:d:u::right): $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
+        echo "$(git::gh:d:u::right): $(git::gh:d:u::head_hash "$(git::gh:d:u::right)")"
     fi
     git::gh:d:u::output_template end
     echo
