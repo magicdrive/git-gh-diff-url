@@ -93,7 +93,7 @@ git::gh:d:u::browser_command() {
 }
 
 git::gh:d:u::branch_name() {
-    echo "($(basename $(git rev-parse --show-toplevel))) $(git::gh:d:u::current_branch)"
+    echo "($(basename $(git rev-parse --show-toplevel))) $(git::gh:d:u::right)"
 }
 
 git::gh:d:u::head_log() {
