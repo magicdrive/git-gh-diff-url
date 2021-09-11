@@ -4,6 +4,9 @@ NAME
 ----
 git-gh-diff-url - generate github refs diff url (github.com/user/repo/compare/...).
 
+---
+
+<img width="1557" alt="image" src="https://user-images.githubusercontent.com/1598505/132936980-8578682c-47a9-4428-ba13-f31bb0ad63ac.png">
 
 USAGE
 ----
