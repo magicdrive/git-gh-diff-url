@@ -118,10 +118,6 @@ git::gh:d:u::right() {
     fi
 }
 
-git::gh:d:u::refs_mode() {
-    __CONFIG_REFS_MODE=$1
-}
-
 git::gh:d:u::output_template() {
     local _mode=$1
     case "${_mode}" in
@@ -219,7 +215,7 @@ while getopts "$optspec" optchar; do
                     ;;
                 refs-mode)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    if [[ ${val} =~ ^(:?r|l|lr|rl)$ ]]; then
+                    if [[ ${val} =~ ^(r|l|lr|rl)$ ]]; then
                         __CONFIG_REFS="${val}"
                     else
                         echo "Unknown option --refs-mode ${val}" >&2
@@ -241,7 +237,7 @@ while getopts "$optspec" optchar; do
                     ;;
                 output)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    if [[ ${val} =~ ^(:?text|html|markdown)$ ]]; then
+                    if [[ ${val} =~ ^(text|html|markdown)$ ]]; then
                         GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE="${val}"
                     else
                         echo "Unknown option --output ${val}" >&2
@@ -265,7 +261,7 @@ while getopts "$optspec" optchar; do
             __CONFIG_RIGHT="${OPTARG}"
             ;;
         o)
-            if [[ ${OPTARG} =~ ^(:?r|l|lr|rl)$ ]]; then
+            if [[ ${OPTARG} =~ ^(r|l|lr|rl)$ ]]; then
                 __CONFIG_REFS="${OPTARG}"
             else
                 echo "Unknown option -o ${OPTARG}" >&2
@@ -281,11 +277,11 @@ while getopts "$optspec" optchar; do
         b)
             __CONFIG_BROWSER=1
             ;;
-        t)
+        p)
             __CONFIG_BROWSER_OPTION="${OPTARG}"
             ;;
         t)
-            if [[ ${OPTARG} =~ ^(:?text|html|markdown)$ ]]; then
+            if [[ ${OPTARG} =~ ^(text|html|markdown)$ ]]; then
                 GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE="${OPTARG}"
             else
                 echo "Unknown option -t ${OPTARG}" >&2
