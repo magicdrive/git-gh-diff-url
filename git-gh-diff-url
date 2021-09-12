@@ -203,7 +203,7 @@ while getopts "$optspec" optchar; do
         -)
             case "${OPTARG}" in
                 help)
-                    git::gh:d:u:help; exit 1
+                    git::gh:d:u::help; exit 1
                     ;;
                 left)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
@@ -252,7 +252,7 @@ while getopts "$optspec" optchar; do
                     ;;
             esac;;
         h)
-            git::repl::help; exit 1
+            git::gh:d:u::help; exit 1
             ;;
         l)
             __CONFIG_LEFT="${OPTARG}"
