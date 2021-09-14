@@ -158,14 +158,14 @@ git::gh:d:u::main() {
     _right="$(git::gh:d:u::right)"
     case "${__CONFIG_REFS_MODE:-"${GIT_GH_DIFF_URL_DEFAULT_REFS_MODE}"}" in
         l)
-            _left=$(git::gh:d:u::head_hash "$left")
+            _left=$(git::gh:d:u::head_hash "$_left")
             ;;
         r)
-            _right=$(git::gh:d:u::head_hash "$right")
+            _right=$(git::gh:d:u::head_hash "$_right")
             ;;
         lr|rl)
-            _right=$(git::gh:d:u::head_hash "$right")
-            _left=$(git::gh:d:u::head_hash "$left")
+            _right=$(git::gh:d:u::head_hash "$_right")
+            _left=$(git::gh:d:u::head_hash "$_left")
             ;;
         *)
     esac
