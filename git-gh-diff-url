@@ -196,7 +196,6 @@ git::gh:d:u::main() {
             _right=$(git::gh:d:u::head_hash "${_right}")
             _left=$(git::gh:d:u::head_hash "${_left}")
             ;;
-        *)
     esac
 
     echo "$(git::gh:d:u::branch_name)"
@@ -255,7 +254,7 @@ while getopts "$optspec" optchar; do
                 refs-mode)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     if [[ ${val} =~ ^(r|l|lr|rl)$ ]]; then
-                        __CONFIG_REFS="${val}"
+                        __CONFIG_REFS_MODE="${val}"
                     else
                         echo "Unknown option --refs-mode ${val}" >&2
                         exit 1
@@ -304,7 +303,7 @@ while getopts "$optspec" optchar; do
             ;;
         o)
             if [[ ${OPTARG} =~ ^(r|l|lr|rl)$ ]]; then
-                __CONFIG_REFS="${OPTARG}"
+                __CONFIG_REFS_MODE="${OPTARG}"
             else
                 echo "Unknown option -o ${OPTARG}" >&2
                 exit 1
