@@ -104,7 +104,7 @@ git::gh:d:u::gh_repository_id() {
     echo $(git remote -v | \
         grep fetch | \
         perl -pe \
-        's/origin\s*(?:git\@github\.com:|https:\/\/github\\.com\/)(.*)\/(.*)(\.git)?\s*\(fetch\)/$1\/$2/xo' \
+        's/^origin\s*(?:git\@github\.com:|https:\/\/github\\.com\/)(.+)\/(.+?)(?:\.git)?\s+\(fetch\)\s*$/$1\/$2/xo'
     )
 }
 
