@@ -69,7 +69,7 @@ HELP
 }
 
 git::gh:d:u::version() {
-    echo "v1.1.2"
+    echo "v1.1.3"
 }
 
 git::gh:d:u::browser() {
