@@ -5,16 +5,16 @@
 #
 # USAGE:
 #     * git-gh-diff-url --left [LEFT] --right [RIGHT] [OPTIONS]
-#     *  [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
-#     *  [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
-#     *  [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
-#     *  [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
-#     *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
-#     *  [-v|--verbose]                     # Verbose mode on.
-#     *  [-s|--simple]                      # Simple mode on.
-#     *  [-b|--browser]                     # open create url to `git web--browse` cmd.
-#     *  [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
-#     *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
+#     *     [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
+#     *     [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
+#     *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
+#     *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
+#     *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+#     *     [-v|--verbose]                     # Verbose mode on.
+#     *     [-s|--simple]                      # Simple mode on.
+#     *     [-b|--browser]                     # open create url to `git web--browse` cmd.
+#     *     [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
+#     *     [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 #
 # ENVIRONMENTS:
 #     GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION   # Default use `--browser-option` option. (default: "")
@@ -53,14 +53,16 @@ git::gh:d:u::help() {
     cat << HELP
 USAGE:
     * git-gh-diff-url --left [LEFT] --right [RIGHT]
-    *  [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
-    *  [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
-    *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
-    *  [-v|--verbose]                     # verbose mode
-    *  [-s|--simple]                      # simple output mode
-    *  [-b|--browser]                     # open create url to \`git web--browse\` cmd.
-    *  [-p|--browser-option] [OPTION]     # Specify \`git web--browse\` option.
-    *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
+    *     [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
+    *     [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
+    *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
+    *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
+    *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+    *     [-v|--verbose]                     # verbose mode
+    *     [-s|--simple]                      # simple output mode
+    *     [-b|--browser]                     # open create url to \`git web--browse\` cmd.
+    *     [-p|--browser-option] [OPTION]     # Specify \`git web--browse\` option.
+    *     [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 HELP
 }
 

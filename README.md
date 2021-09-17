@@ -2,7 +2,7 @@
 
 NAME
 ----
-git-gh-diff-url - generate github refs diff url (github.com/user/repo/compare/...).
+git-gh-diff-url - Generate github refs diff url (github.com/{user}/{repo}/compare/{left}...{right}).
 
 ---
 
@@ -15,14 +15,16 @@ USAGE
 ----
 ```
  * git-gh-diff-url --left [LEFT] --right [RIGHT] [OPTIONS]
- *  [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
- *  [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
- *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
- *  [-v|--verbose]                     # Verbose mode.
- *  [-s|--simple]                      # Simple output mode.
- *  [-b|--browser]                     # open create url to `git web--browse` cmd.
- *  [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
- *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
+ *     [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
+ *     [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
+ *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
+ *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
+ *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+ *     [-v|--verbose]                     # Verbose mode.
+ *     [-s|--simple]                      # Simple output mode.
+ *     [-b|--browser]                     # open create url to `git web--browse` cmd.
+ *     [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
+ *     [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 ```
 
 ENVIRONMENTS
