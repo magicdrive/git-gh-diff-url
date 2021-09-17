@@ -91,8 +91,11 @@ git::gh:d:u::current_branch() {
 }
 
 git::gh:d:u::gh_repository_id() {
-    echo $(git remote -v | grep fetch | sed 's/origin[[:space:]]*git@github.com:\(.*\).git[[:space:]]*(fetch)/\1/')
-
+    echo $(git remote -v | \
+        grep fetch | \
+        perl -pe \
+        's/origin\s*(?:git\@github\.com:|https:\/\/github\\.com\/)(.*)\/(.*)(\.git)?\s*\(fetch\)/$1\/$2/g' \
+    )
 }
 
 git::gh:d:u::diff_url() {
