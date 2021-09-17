@@ -10,6 +10,7 @@
 #     *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
 #     *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
 #     *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+#     *     [--version]                        # Show version.
 #     *     [-v|--verbose]                     # Verbose mode on.
 #     *     [-s|--simple]                      # Simple mode on.
 #     *     [-b|--browser]                     # open create url to `git web--browse` cmd.
@@ -58,12 +59,17 @@ USAGE:
     *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
     *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
     *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
-    *     [-v|--verbose]                     # verbose mode
-    *     [-s|--simple]                      # simple output mode
+    *     [--version]                        # Show version.
+    *     [-v|--verbose]                     # Verbose mode
+    *     [-s|--simple]                      # Simple output mode
     *     [-b|--browser]                     # open create url to \`git web--browse\` cmd.
     *     [-p|--browser-option] [OPTION]     # Specify \`git web--browse\` option.
     *     [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 HELP
+}
+
+git::gh:d:u::version() {
+    echo "v1.1.3"
 }
 
 git::gh:d:u::browser() {
@@ -98,7 +104,7 @@ git::gh:d:u::gh_repository_id() {
     echo $(git remote -v | \
         grep fetch | \
         perl -pe \
-        's/origin\s*(?:git\@github\.com:|https:\/\/github\\.com\/)(.*)\/(.*)(\.git)?\s*\(fetch\)/$1\/$2/g' \
+        's/origin\s*(?:git\@github\.com:|https:\/\/github\\.com\/)(.*)\/(.*)(\.git)?\s*\(fetch\)/$1\/$2/xo' \
     )
 }
 
@@ -254,6 +260,9 @@ while getopts "$optspec" optchar; do
                         echo "Unknown option --refs-mode ${val}" >&2
                         exit 1
                     fi
+                    ;;
+                version)
+                    git::gh:d:u::version; exit 1
                     ;;
                 verbose)
                     __CONFIG_VERBOSE=1

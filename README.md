@@ -20,6 +20,7 @@ USAGE
  *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
  *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
  *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+ *     [--version]                        # Show version.
  *     [-v|--verbose]                     # Verbose mode.
  *     [-s|--simple]                      # Simple output mode.
  *     [-b|--browser]                     # open create url to `git web--browse` cmd.
