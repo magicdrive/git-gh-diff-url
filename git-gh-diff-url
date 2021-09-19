@@ -5,18 +5,20 @@
 #
 # USAGE:
 #     * git-gh-diff-url --left [LEFT] --right [RIGHT] [OPTIONS]
-#     *  [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
-#     *  [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
-#     *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
-#     *  [-v|--verbose]                     # Verbose mode on.
-#     *  [-s|--simple]                      # Simple mode on.
-#     *  [-b|--browser]                     # open create url to GIT_GH_DIFF_URL_BROWSER cmd.
-#     *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
+#     *     [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
+#     *     [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
+#     *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
+#     *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
+#     *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+#     *     [--version]                        # Show version.
+#     *     [-v|--verbose]                     # Verbose mode on.
+#     *     [-s|--simple]                      # Simple mode on.
+#     *     [-b|--browser]                     # open create url to `git web--browse` cmd.
+#     *     [-p|--browser-option] [OPTION]     # Specify `git web--browse` option.
+#     *     [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 #
 # ENVIRONMENTS:
-#     GIT_GH_DIFF_URL_BROWSER_DARWIN           # Browser command to be used if you are on MacOSX. (default: use chrome)
-#     GIT_GH_DIFF_URL_BROWSER_LINUX            # Browser command to be used if you are on Linux. (default: use chrome)
-#     GIT_GH_DIFF_URL_BROWSER                  # Highest priority browser command.
+#     GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION   # Default use `--browser-option` option. (default: "")
 #     GIT_GH_DIFF_URL_DEFAULT_REFS_MODE        # Default use `--refs-mode` option. (default: "l")
 #     GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE # Default use `--output` option. (default: "markdown")
 #
@@ -44,56 +46,39 @@
 
 set -e
 
-export GIT_GH_DIFF_URL_BROWSER_DARWIN="${GIT_GH_DIFF_URL_BROWSER_DARWIN:-"open -a '/Applications/Google Chrome.app'"}"
-export GIT_GH_DIFF_URL_BROWSER_LINUX="${GIT_GH_DIFF_URL_BROWSER_LINUX:-"google-chrome"}"
-export GIT_GH_DIFF_URL_BROWSER="${GIT_GH_DIFF_URL_BROWSER:-""}"
-export GIT_GH_DEFAULT_REFS_MODE="${GIT_GH_DEFAULT_REFS_MODE:-"l"}"
+export GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION="${GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION:-""}"
+export GIT_GH_DIFF_URL_DEFAULT_REFS_MODE="${GIT_GH_DIFF_URL_DEFAULT_REFS_MODE:-"l"}"
 export GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE=${GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE:-"markdown"}
 
 git::gh:d:u::help() {
     cat << HELP
 USAGE:
     * git-gh-diff-url --left [LEFT] --right [RIGHT]
-    *  [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
-    *  [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
-    *  [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
-    *  [-v|--verbose]                     # verbose mode
-    *  [-s|--simple]                      # simple output mode
-    *  [-b|--browser]                     # open create url to GIT_GH_DIFF_URL_BROWSER cmd.
-    *  [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
+    *     [-l|--left]  [hash|tag|branch]     # Left side git ref used for compare. (default: remote oring default branch)
+    *     [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
+    *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
+    *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
+    *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+    *     [--version]                        # Show version.
+    *     [-v|--verbose]                     # Verbose mode on.
+    *     [-s|--simple]                      # Simple mode on.
+    *     [-b|--browser]                     # open create url to \`git web--browse\` cmd.
+    *     [-p|--browser-option] [OPTION]     # Specify \`git web--browse\` option.
+    *     [-t|--output] [text|html|markdown] # Specify output text type. (default: markdown)
 HELP
+}
+
+git::gh:d:u::version() {
+    echo "v1.1.3"
 }
 
 git::gh:d:u::browser() {
     local url=$1
-    $($(git::gh:d:u::browser_command) "${url}")
-}
-
-git::gh:d:u::browser_command() {
-    local browser_command
-
-    case "$(uname -s)" in
-        "Darwin")
-            browser_command="${GIT_GH_DIFF_URL_BROWSER_DARWIN}"
-            ;;
-        "Linux")
-            browser_command="${GIT_GH_DIFF_URL_BROWSER_LINUX}"
-            ;;
-        *)
-            echo "Unsupported platform" >&2
-            exit 1
-            ;;
-    esac
-
-    if [[ -n ${GIT_GH_DIFF_URL_BROWSER} ]];then
-        browser_command="${GIT_GH_DIFF_URL_BROWSER}"
-    fi
-
-    echo "${browser_command}"
+    git web--browse "${__CONFIG_BROWSER_OPTION:-${GIT_GH_DIFF_URL_DEFAULT_BROWSER_OPTION}}" "${url}"
 }
 
 git::gh:d:u::branch_name() {
-    echo "($(basename $(git rev-parse --show-toplevel))) $(git::gh:d:u::current_branch)"
+    echo "($(basename $(git rev-parse --show-toplevel))) $(git::gh:d:u::right)"
 }
 
 git::gh:d:u::head_log() {
@@ -116,8 +101,11 @@ git::gh:d:u::current_branch() {
 }
 
 git::gh:d:u::gh_repository_id() {
-    echo $(git remote -v | grep fetch | sed 's/origin[[:space:]]*git@github.com:\(.*\).git[[:space:]]*(fetch)/\1/')
-
+    echo $(git remote -v | \
+        grep fetch | \
+        perl -pe \
+        's/^origin\s*(?:git\@github\.com:|https:\/\/github\\.com\/)(.+)\/(.+?)(?:\.git)?\s+\(fetch\)\s*$/$1\/$2/xo'
+    )
 }
 
 git::gh:d:u::diff_url() {
@@ -125,6 +113,22 @@ git::gh:d:u::diff_url() {
     local left=$2
     local right=$3
     echo https://github.com/${repo_url}/compare/${left}...${right}
+}
+
+git::gh:d:u::left_name() {
+    if [[ -n ${__CONFIG_LEFT_ALIAS} ]];then
+        echo "${__CONFIG_LEFT_ALIAS}"
+    else
+        git::gh:d:u::left
+    fi
+}
+
+git::gh:d:u::right_name() {
+    if [[ -n ${__CONFIG_RIGHT_ALIAS} ]];then
+        echo "${__CONFIG_RIGHT_ALIAS}"
+    else
+        git::gh:d:u::right
+    fi
 }
 
 git::gh:d:u::left() {
@@ -141,10 +145,6 @@ git::gh:d:u::right() {
     else
         git::gh:d:u::current_branch
     fi
-}
-
-git::gh:d:u::refs_mode() {
-    __CONFIG_REFS_MODE=$1
 }
 
 git::gh:d:u::output_template() {
@@ -185,18 +185,17 @@ git::gh:d:u::main() {
     _repo_url="$(git::gh:d:u::gh_repository_id)"
     _left="$(git::gh:d:u::left)"
     _right="$(git::gh:d:u::right)"
-    case "${__CONFIG_REFS_MODE:-"l"}" in
+    case "${__CONFIG_REFS_MODE:-"${GIT_GH_DIFF_URL_DEFAULT_REFS_MODE}"}" in
         l)
-            _left=$(git::gh:d:u::head_hash "$left")
+            _left=$(git::gh:d:u::head_hash "${_left}")
             ;;
         r)
-            _right=$(git::gh:d:u::head_hash "$right")
+            _right=$(git::gh:d:u::head_hash "${_right}")
             ;;
         lr|rl)
-            _right=$(git::gh:d:u::head_hash "$right")
-            _left=$(git::gh:d:u::head_hash "$left")
+            _right=$(git::gh:d:u::head_hash "${_right}")
+            _left=$(git::gh:d:u::head_hash "${_left}")
             ;;
-        *)
     esac
 
     echo "$(git::gh:d:u::branch_name)"
@@ -206,16 +205,18 @@ git::gh:d:u::main() {
     git::gh:d:u::output_template start
     if [[ ${__CONFIG_VERBOSE} = 1 ]] && [[ ${__CONFIG_SIMPLE} != 1 ]];then
         echo "left side:"
+        echo "($(git::gh:d:u::left_name))"
         git::gh:d:u::head_log $(git::gh:d:u::left)
         echo
         echo "right side:"
+        echo "($(git::gh:d:u::right_name))"
         git::gh:d:u::head_log $(git::gh:d:u::right)
     else
         echo "left side:"
-        echo "$(git::gh:d:u::left): $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
+        echo "$(git::gh:d:u::left_name): $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
         echo
         echo "right side:"
-        echo "$(git::gh:d:u::right): $(git::gh:d:u::head_hash "$(git::gh:d:u::left)")"
+        echo "$(git::gh:d:u::right_name): $(git::gh:d:u::head_hash "$(git::gh:d:u::right)")"
     fi
     git::gh:d:u::output_template end
     echo
@@ -226,30 +227,41 @@ git::gh:d:u::main() {
 
 
 
-optspec=":-:r:l:o:t:vshb"
+optspec=":-:r:l:o:t:p:vshb"
 while getopts "$optspec" optchar; do
     case "${optchar}" in
         -)
             case "${OPTARG}" in
                 help)
-                    git::gh:d:u:help; exit 1
+                    git::gh:d:u::help; exit 1
                     ;;
                 left)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     __CONFIG_LEFT="${val}"
                     ;;
+                la|left-alias)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_LEFT_ALIAS="${val}"
+                    ;;
                 right)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     __CONFIG_RIGHT="${val}"
                     ;;
+                ra|right-alias)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_RIGHT_ALIAS="${val}"
+                    ;;
                 refs-mode)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    if [[ ${val} =~ ^(:?r|l|lr|rl)$ ]]; then
-                        __CONFIG_REFS="${val}"
+                    if [[ ${val} =~ ^(r|l|lr|rl)$ ]]; then
+                        __CONFIG_REFS_MODE="${val}"
                     else
                         echo "Unknown option --refs-mode ${val}" >&2
                         exit 1
                     fi
+                    ;;
+                version)
+                    git::gh:d:u::version; exit 1
                     ;;
                 verbose)
                     __CONFIG_VERBOSE=1
@@ -260,9 +272,13 @@ while getopts "$optspec" optchar; do
                 browser)
                     __CONFIG_BROWSER=1
                     ;;
+                browser-optoin)
+                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    __CONFIG_BROWSER_OPTION="${val}"
+                    ;;
                 output)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    if [[ ${val} =~ ^(:?text|html|markdown)$ ]]; then
+                    if [[ ${val} =~ ^(text|html|markdown)$ ]]; then
                         GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE="${val}"
                     else
                         echo "Unknown option --output ${val}" >&2
@@ -277,7 +293,7 @@ while getopts "$optspec" optchar; do
                     ;;
             esac;;
         h)
-            git::repl::help; exit 1
+            git::gh:d:u::help; exit 1
             ;;
         l)
             __CONFIG_LEFT="${OPTARG}"
@@ -286,8 +302,8 @@ while getopts "$optspec" optchar; do
             __CONFIG_RIGHT="${OPTARG}"
             ;;
         o)
-            if [[ ${OPTARG} =~ ^(:?r|l|lr|rl)$ ]]; then
-                __CONFIG_REFS="${OPTARG}"
+            if [[ ${OPTARG} =~ ^(r|l|lr|rl)$ ]]; then
+                __CONFIG_REFS_MODE="${OPTARG}"
             else
                 echo "Unknown option -o ${OPTARG}" >&2
                 exit 1
@@ -302,8 +318,11 @@ while getopts "$optspec" optchar; do
         b)
             __CONFIG_BROWSER=1
             ;;
+        p)
+            __CONFIG_BROWSER_OPTION="${OPTARG}"
+            ;;
         t)
-            if [[ ${OPTARG} =~ ^(:?text|html|markdown)$ ]]; then
+            if [[ ${OPTARG} =~ ^(text|html|markdown)$ ]]; then
                 GIT_GH_DIFF_URL_DEFAULT_OUTPUT_TEXT_TYPE="${OPTARG}"
             else
                 echo "Unknown option -t ${OPTARG}" >&2
