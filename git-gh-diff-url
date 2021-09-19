@@ -58,7 +58,7 @@ USAGE:
     *     [--la|--left-alias]  [alias]       # Left side git ref alias. (default: use --left value)
     *     [-r|--right] [hash|tag|branch]     # Right side git ref used for compare. (default: current branch)
     *     [--ra|--right-alias] [alias]       # Right side git ref alias. (default: use --right value)
-    *     [-o|--refs-mode] [r|l|lr]          # Specify url ref hash mode. r or l or lr or rl(default: l)
+    *     [-o|--refs-mode] [r|l|lr|none]     # Specify url ref hash mode. r or l or lr or rl or none. (default: l)
     *     [--version]                        # Show version.
     *     [-v|--verbose]                     # Verbose mode on.
     *     [-s|--simple]                      # Simple mode on.
@@ -196,6 +196,10 @@ git::gh:d:u::main() {
             _right=$(git::gh:d:u::head_hash "${_right}")
             _left=$(git::gh:d:u::head_hash "${_left}")
             ;;
+        none)
+            _left="$(git::gh:d:u::left)"
+            _right="$(git::gh:d:u::right)"
+            ;;
     esac
 
     echo "$(git::gh:d:u::branch_name)"
@@ -253,7 +257,7 @@ while getopts "$optspec" optchar; do
                     ;;
                 refs-mode)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    if [[ ${val} =~ ^(r|l|lr|rl)$ ]]; then
+                    if [[ ${val} =~ ^(r|l|lr|rl|none)$ ]]; then
                         __CONFIG_REFS_MODE="${val}"
                     else
                         echo "Unknown option --refs-mode ${val}" >&2
@@ -302,7 +306,7 @@ while getopts "$optspec" optchar; do
             __CONFIG_RIGHT="${OPTARG}"
             ;;
         o)
-            if [[ ${OPTARG} =~ ^(r|l|lr|rl)$ ]]; then
+            if [[ ${OPTARG} =~ ^(r|l|lr|rl|none)$ ]]; then
                 __CONFIG_REFS_MODE="${OPTARG}"
             else
                 echo "Unknown option -o ${OPTARG}" >&2
